@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<!--
+
+This fit: non-bayesian
+
+B 2-point function: multi_alt_exp_expE_mat_model, 2x1 matrix fit
+K 2-point function at p_F=0: multi_exp_Asqr_expE_BC_model
+B to K 3-point function at p_F=0: threept_multi_alt_exp_expE_model
+
+-->
+<fit>
+
+  <combined_model>
+
+    <multi_alt_exp_expE_mat_model> <!-- this is for the B meson 2-point function -->
+      <n_exp>1</n_exp>
+      <n_o_exp>1</n_o_exp>
+      <A_name>Ai</A_name>
+      <B_name>Bi</B_name>
+      <E_name>Ei</E_name>
+      <dE_name>dEi</dE_name>
+      <t_name>t</t_name>
+      <dim_1>2</dim_1>
+      <dim_2>1</dim_2>
+      <fit_domain>
+        <variable_name>t</variable_name>
+        <range>
+          <min>12</min>
+          <max>32</max>
+        </range>
+      </fit_domain>
+      <plot_domain>
+        <variable_name>t</variable_name>
+        <plot_order>1</plot_order>
+        <range>
+          <min>0</min>
+          <max>32</max>
+        </range>
+        <step>1</step>
+      </plot_domain>
+      <data_file>
+        <file_type>ASCII</file_type>
+        <file_name>/raid1/stefan/data/B_formfactors_mNRQCD_AsqTad/MILC_20_64/Sea_0.007_0.05/Val_0.007_0.04_2.8/RWcd_src/hl2pt_RWcd_matrix_v_00/converted_correlators_fwbw_av_2x1_matrix/re_B_2x1_matrix_mom_0_0_0.dat</file_name>
+      </data_file>
+    </multi_alt_exp_expE_mat_model>
+
+    <multi_exp_Asqr_expE_BC_model> <!-- this is for the K 2-point function at p_F=0 -->
+      <n_exp>1</n_exp>
+      <A_name>Af</A_name>
+      <B_name>Bf</B_name>
+      <E_name>Ef</E_name>
+      <dE_name>dEf</dE_name>
+      <t_name>t</t_name>
+      <T_name>L4</T_name>
+      <fit_domain>
+        <variable_name>t</variable_name>
+        <range>
+          <min>10</min>
+          <max>54</max>
+        </range>
+      </fit_domain>
+      <plot_domain>
+        <variable_name>t</variable_name>
+        <plot_order>1</plot_order>
+        <range>
+          <min>0</min>
+          <max>64</max>
+        </range>
+        <step>0.01</step>
+      </plot_domain>
+      <data_file>
+        <file_type>ASCII</file_type>
+        <file_name>/raid1/stefan/data/B_formfactors_mNRQCD_AsqTad/MILC_20_64/Sea_0.007_0.05/Val_0.007_0.04_2.8/RWcd_src/ll2pt/converted_correlators/re_ps_ls_mom_0_0_0.dat</file_name>
+      </data_file>
+    </multi_exp_Asqr_expE_BC_model>
+
+    <threept_multi_alt_exp_expE_model>  <!-- this is for the B to K 3-point function at p_F=0 -->
+      <n_exp_initial>1</n_exp_initial>
+      <n_o_exp_initial>1</n_o_exp_initial>
+      <n_exp_final>1</n_exp_final>
+      <n_o_exp_final>0</n_o_exp_final>
+      <A_name>A</A_name>
+      <B_name>B</B_name>
+      <E_initial_name>Ei</E_initial_name>
+      <dE_initial_name>dEi</dE_initial_name>
+      <E_final_name>Ef</E_final_name>
+      <dE_final_name>dEf</dE_final_name>
+      <t_name>t</t_name>
+      <T_name>T</T_name>
+      <fit_domain>
+        <variable_name>t</variable_name>
+        <range>
+          <min>6</min>
+          <max>T-12</max>
+        </range>
+      </fit_domain>
+      <fit_domain>
+        <variable_name>T</variable_name>
+        <range>
+          <min>0</min>
+          <max>26</max>
+        </range>
+      </fit_domain>
+      <plot_domain>
+        <variable_name>t</variable_name>
+        <plot_order>2</plot_order>
+        <range>
+          <min>0</min>
+          <max>T</max>
+        </range>
+        <step>1</step>
+      </plot_domain>
+      <plot_domain>
+        <variable_name>T</variable_name>
+        <plot_order>1</plot_order>
+        <range>
+          <min>0</min>
+          <max>26</max>
+        </range>
+        <step>1</step>
+      </plot_domain>
+      <data_file>
+        <file_type>binary</file_type>
+        <file_name>/raid1/stefan/data/B_formfactors_mNRQCD_AsqTad/MILC_20_64/Sea_0.007_0.05/Val_0.007_0.04_2.8/RWcd_src/hl3pt_RWcd_local_v_00_1mcurrent/converted_correlators_fwbw_av/re_g5_g0_sl_pf_0_0_0_p_0_0_0.bin</file_name>
+      </data_file>
+    </threept_multi_alt_exp_expE_model>
+  </combined_model>
+
+  <fit_settings>
+    <restrict_data_range>false</restrict_data_range>
+    <data_range_min>1</data_range_min>
+    <data_range_max>1000</data_range_max>
+    <bayesian>false</bayesian>
+    <random_priors>true</random_priors>
+    <num_diff_first_order>false</num_diff_first_order>
+    <second_deriv_covariance>false</second_deriv_covariance>
+    <second_deriv_minimization>false</second_deriv_minimization>
+    <num_diff_step>1e-08</num_diff_step>
+    <start_lambda>0.001</start_lambda>
+    <lambda_factor>10</lambda_factor>
+    <chi_sqr_tolerance>0.0001</chi_sqr_tolerance>
+    <chi_sqr_per_dof_tolerance>true</chi_sqr_per_dof_tolerance>
+    <bootstrap_normalization>false</bootstrap_normalization>
+    <inversion_method>LU</inversion_method>
+    <svd_fixed_cut>0</svd_fixed_cut>
+    <svd_ratio_cut>1e-06</svd_ratio_cut>
+    <svd_absolute_cut>1e-06</svd_absolute_cut>
+    <max_iterations>1000</max_iterations>
+    <bin_size>1</bin_size>
+    <bootstrap_samples>500</bootstrap_samples>
+    <use_bse_file>false</use_bse_file>
+    <bse_file>/raid1/stefan/data/bse_files/bootstrap_1600configs_500samples.bse</bse_file>
+    <restrict_bootstrap_range>false</restrict_bootstrap_range>
+    <bootstrap_range_min>1</bootstrap_range_min>
+    <bootstrap_range_max>50</bootstrap_range_max>
+  </fit_settings>
+
+  <constant_values>
+    <constant>
+      <name>L4</name>
+      <value>64</value>
+    </constant>
+  </constant_values>
+
+  <parameter_values>
+    <parameter>
+      <name>Ei</name>
+      <start_value>-0.6619897416534708</start_value>
+    </parameter>
+    <parameter>
+      <name>Eio</name>
+      <start_value>-0.3297372993989665</start_value>
+    </parameter>
+    <parameter>
+      <name>Ai__1</name>
+      <start_value>0.05450860278884764</start_value>
+    </parameter>
+    <parameter>
+      <name>Aio__1</name>
+      <start_value>0.04441792666054067</start_value>
+    </parameter>
+    <parameter>
+      <name>Ai__2</name>
+      <start_value>0.1802834503160796</start_value>
+    </parameter>
+    <parameter>
+      <name>Aio__2</name>
+      <start_value>0.1624367614918681</start_value>
+    </parameter>
+    <parameter>
+      <name>Ef</name>
+      <start_value>-1.081135088739603</start_value>
+    </parameter>
+    <parameter>
+      <name>Af</name>
+      <start_value>0.2769825437328376</start_value>
+    </parameter>
+    <parameter>
+      <name>Aee</name>
+      <start_value>0.07610781330568946</start_value>
+    </parameter>
+    <parameter>
+      <name>Aeo</name>
+      <start_value>0.08727689154758618</start_value>
+    </parameter>
+  </parameter_values>
+
+</fit>
