@@ -44,6 +44,7 @@ fitter::fitter(abstract_global_model* fit_model,
 
   svd_ratio=default_svd_ratio;
   svd_value=default_svd_value;
+  off_diagonal_rescale_factor=default_off_diagonal_rescale_factor;
 
   cut=0;
   n_parameters_dof=0;
@@ -160,7 +161,21 @@ void fitter::set_data(const vector< vector< double > >& data)
             corr_temp+=(data[n][m1]-average[m1])*(data[n][m2]-average[m2]);
           }
         }
-        gsl_matrix_set(corr, m1, m2, corr_temp/normalization);
+        if( inv_method==off_diagonal_rescale )
+        {
+          if( m1==m2 )
+          {
+            gsl_matrix_set(corr, m1, m2, corr_temp/normalization);
+          }
+          else
+          {
+            gsl_matrix_set(corr, m1, m2, off_diagonal_rescale_factor*corr_temp/normalization);
+          }
+        }
+        else
+        {
+          gsl_matrix_set(corr, m1, m2, corr_temp/normalization);
+        }
       }
     }
 
@@ -209,7 +224,7 @@ void fitter::set_data(const vector< vector< double > >& data)
   }
 
   bool singular=false;
-  if(inv_method==LU_inversion)
+  if( (inv_method==LU_inversion) || (inv_method==off_diagonal_rescale) )
   {
     if(n_data_sets<n_fit_points)
     {
@@ -995,6 +1010,12 @@ void fitter::set_svd_cut_ratio(double ratio)
 void fitter::set_svd_cut_absolute(double value)
 {
   svd_value=value;
+}
+
+
+void fitter::set_off_diagonal_rescale_factor(double value)
+{
+  off_diagonal_rescale_factor=value;
 }
 
 

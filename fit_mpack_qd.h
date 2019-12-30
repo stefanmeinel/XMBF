@@ -28,6 +28,9 @@ bool fit(fitter* _fitter,
          int verbose_level,
          int& steps_needed);
 
+void write_data_covariance(const std::string filename,
+                           fitter* _fitter);
+
 void print_fit_results(fitter* _fitter,
                        bool bayesian,
                        const std::vector< std::string >& parameter_names,

@@ -28,7 +28,8 @@ enum inversion_method
   simple_cut = 1,
   ratio_cut = 2,
   absolute_cut = 3,
-  diagonal = 4
+  diagonal = 4,
+  off_diagonal_rescale = 6
 };
 
 const double default_start_lambda=0.001;
@@ -41,6 +42,7 @@ const double default_svd_ratio=0.000001;
 const double default_svd_value=0.000000000001;
 const bool default_bootstrap_normalization=false;
 const double default_num_diff_step=1e-08;
+const double default_off_diagonal_rescale_factor=0.9;
 
 class fitter
 {
@@ -55,6 +57,7 @@ class fitter
     void set_svd_cut(int scut);
     void set_svd_cut_ratio(double ratio);
     void set_svd_cut_absolute(double value);
+    void set_off_diagonal_rescale_factor(double value);
 
     void set_data(const vector< vector< double > >& data);
 //-----------------------------------------------------------------------------
@@ -150,6 +153,7 @@ class fitter
     int svd_cut;
     double svd_ratio;
     double svd_value;
+    double off_diagonal_rescale_factor;
 
     int n_parameters_dof;
     int cut;

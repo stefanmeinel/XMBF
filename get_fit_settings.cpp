@@ -20,6 +20,7 @@ bool get_fit_settings(bool bootstrap,
                       int& svd_fixed_cut,
                       double& svd_ratio_cut,
                       double& svd_absolute_cut,
+                      double& off_diagonal_rescale_factor,
                       int& max_iterations,
                       int& bin_size,
                       int& bootstrap_samples,
@@ -87,6 +88,11 @@ bool get_fit_settings(bool bootstrap,
   {
     inv_method=absolute_cut;
     try { svd_absolute_cut=get_positive_double(*fitsettings_nodeset.begin(), "svd_absolute_cut"); } catch (int e) { return false; }
+  }
+  else if(inv_method_str=="off_diagonal_rescale")
+  {
+    inv_method=off_diagonal_rescale;
+    try { off_diagonal_rescale_factor=get_positive_double(*fitsettings_nodeset.begin(), "off_diagonal_rescale_factor"); } catch (int e) { return false; }
   }
   else
   {

@@ -1,4 +1,4 @@
-CXX           = /usr/lib64/mpi/gcc/openmpi/bin/mpic++
+CXX           = /usr/lib64/mpi/gcc/openmpi1/bin/mpic++
 CXXFLAGS      = -O3 -Wall -Wno-sign-compare
 
 #note: use "pkg-config libxml++-2.6 --cflags --libs" to determine includes and libs for libxml++
@@ -11,7 +11,7 @@ INCPATH       = -I/usr/include/libxml++-2.6 -I/usr/lib64/libxml++-2.6/include -I
 
 LIBS          = -lgsl -lgslcblas -lm -lxml++-2.6 -lxml2 -lglibmm-2.4 -lgobject-2.0 -lsigc-2.0 -lglib-2.0
 
-LINK          = /usr/lib64/mpi/gcc/openmpi/bin/mpic++
+LINK          = /usr/lib64/mpi/gcc/openmpi1/bin/mpic++
 LFLAGS        =
 DEL_FILE      = rm -f
 

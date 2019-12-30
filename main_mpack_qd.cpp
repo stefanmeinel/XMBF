@@ -42,6 +42,7 @@ void print_usage()
   std::cout << "  -c cov.dat           write covariance matrix to \"cov.dat\"" << std::endl;
   std::cout << "  -r res.dat           write results to \"res.dat\"" << std::endl;
   std::cout << "  -re res_err.dat      write results with errors to \"res_err.dat\"" << std::endl;
+  std::cout << "  -d datacov.dat       write data covariance matrix to \"datacov.dat\"" << std::endl;
   std::cout << "  -p directory         plot data and fit functions, write output files to \"directory\"" << std::endl;
   std::cout << "  -b directory         perform bootstrap, write output files to \"directory\"" << std::endl;
   std::cout << "  -m directory         perform multifit, write output files to \"directory\"" << std::endl;
@@ -51,7 +52,7 @@ void print_usage()
 
 int main(int argc, char *argv[])
 {
-  std::cout << std::endl << "This is XMBF_mpack_qd version 2.52" << std::endl << std::endl;
+  std::cout << std::endl << "This is XMBF_mpack_qd version 2.53" << std::endl << std::endl;
   if(argc<2)
   {
     print_usage();
@@ -88,6 +89,22 @@ int main(int argc, char *argv[])
     try
     {
       covariancefile=clp.get_value("c");
+    }
+    catch (int e)
+    {
+      print_usage();
+      return 1;
+    }
+  }
+
+  bool write_datacov=false;
+  std::string datacovariancefile;
+  if(clp.exists("d"))
+  {
+    write_datacov=true;
+    try
+    {
+      datacovariancefile=clp.get_value("d");
     }
     catch (int e)
     {
@@ -246,6 +263,7 @@ int main(int argc, char *argv[])
         int svd_fixed_cut;
         double svd_ratio_cut;
         double svd_absolute_cut;
+        double off_diagonal_rescale_factor;
         int max_iterations;
         int bin_size;
         int bootstrap_samples;
@@ -276,6 +294,7 @@ int main(int argc, char *argv[])
                              svd_fixed_cut,
                              svd_ratio_cut,
                              svd_absolute_cut,
+                             off_diagonal_rescale_factor,
                              max_iterations,
                              bin_size,
                              bootstrap_samples,
@@ -486,6 +505,9 @@ int main(int argc, char *argv[])
           case absolute_cut:
             _fitter->set_svd_cut_absolute(svd_absolute_cut);
             break;
+          case off_diagonal_rescale:
+            _fitter->set_off_diagonal_rescale_factor(off_diagonal_rescale_factor);
+            break;
           default:
             break;
         }
@@ -497,6 +519,10 @@ int main(int argc, char *argv[])
         if(!fit(_fitter, bayesian, _gaussian_prior, global_fit_data, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, verbose_level, steps_needed))
         {
           return 1;
+        }
+        if(write_datacov)
+        {
+          write_data_covariance(datacovariancefile, _fitter); 
         }
         if(steps_needed==max_iterations+1)
         {
@@ -592,7 +618,7 @@ int main(int argc, char *argv[])
           }
           else
           {
-            if(!bootstrap_with_range_change(c_model, models, constant_values, constant_names, bin_size, restrict_data_range, data_range_min, data_range_max, fit_min, fit_max, has_fit_step, fit_step, has_range_bootstrap_file, range_bootstrap_file, all_file_data, all_file_arguments, _fitter, num_diff, second_deriv_covariance, second_deriv_minimization, num_diff_step, start_lambda, lambda_factor, chi_sqr_tolerance, chi_sqr_tolerance_dof, inv_method, svd_fixed_cut, svd_ratio_cut, svd_absolute_cut, bootstrap_normalization, bayesian, _gaussian_prior, _chisqr_extra_term, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, random_priors, bootstrap_samples, use_bse_file, bse_file, restrict_bootstrap_range, bootstrap_range_min, bootstrap_range_max, bootstrap_output_dir, inputfile))
+            if(!bootstrap_with_range_change(c_model, models, constant_values, constant_names, bin_size, restrict_data_range, data_range_min, data_range_max, fit_min, fit_max, has_fit_step, fit_step, has_range_bootstrap_file, range_bootstrap_file, all_file_data, all_file_arguments, _fitter, num_diff, second_deriv_covariance, second_deriv_minimization, num_diff_step, start_lambda, lambda_factor, chi_sqr_tolerance, chi_sqr_tolerance_dof, inv_method, svd_fixed_cut, svd_ratio_cut, svd_absolute_cut, off_diagonal_rescale_factor, bootstrap_normalization, bayesian, _gaussian_prior, _chisqr_extra_term, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, random_priors, bootstrap_samples, use_bse_file, bse_file, restrict_bootstrap_range, bootstrap_range_min, bootstrap_range_max, bootstrap_output_dir, inputfile))
             {
               return 1;
             }

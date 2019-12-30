@@ -24,16 +24,10 @@ enum inversion_method
   simple_cut = 1,
   ratio_cut = 2,
   absolute_cut = 3,
-  diagonal = 4
+  diagonal = 4,
+  off_diagonal_rescale = 6
 };
 
-const double default_start_lambda=0.001;
-const double default_lambda_fac=10.0;
-const double default_tolerance=0.001;
-const inversion_method default_inversion_method=LU_inversion;
-const int default_svd_cut=0;
-const double default_svd_ratio=0.000001;
-const double default_svd_value=0.000000000001;
 
 const int start_n_functions=1;
 const int start_n_variables=1;
@@ -55,6 +49,7 @@ const double start_tolerance=0.001;
 const int start_svd=0;
 const double start_svd_ratio=0.000001;
 const double start_svd_value=0.000000000001;
+const double start_rescale_value=0.99;
 const int start_steps=100;
 const int start_bin=1;
 const int start_n_exp=1;
@@ -235,6 +230,7 @@ double chisqr_tolerance;
 int svd_cut;
 double svd_ratio;
 double svd_value;
+double rescale_factor;
 inversion_method inv_method;
 int max_steps;
 int bin_size;
@@ -311,6 +307,7 @@ void init()
   svd_cut=start_svd;
   svd_ratio=start_svd_ratio;
   svd_value=start_svd_value;
+  rescale_factor=start_rescale_value;
   max_steps=start_steps;
   bin_size=start_bin;
   bse_file="";
@@ -576,6 +573,14 @@ bool loadFile(const string& fileName)
     if(value!=empty_double)
     {
       svd_value=value;
+    }
+  }
+  if(m.exists("rescalevalue"))
+  {
+    double value=m.get_double("rescalevalue");
+    if(value!=empty_double)
+    {
+      rescale_factor=value;
     }
   }
   if(m.exists("inversionmethod"))
@@ -1993,12 +1998,16 @@ int main(int argc, char *argv[])
       case diagonal:
         addchild(fit_settings_node, "inversion_method", "diagonal");
         break;
+      case off_diagonal_rescale:
+        addchild(fit_settings_node, "inversion_method", "off_diagonal_rescale");
+        break;
       default:
         break;
     }
     addchild(fit_settings_node, "svd_fixed_cut", svd_cut);
     addchild(fit_settings_node, "svd_ratio_cut",  double_to_string(svd_ratio, 14));
     addchild(fit_settings_node, "svd_absolute_cut", double_to_string(svd_value, 14));
+    addchild(fit_settings_node, "off_diagonal_rescale_factor", double_to_string(rescale_factor, 14));
     addchild(fit_settings_node, "max_iterations", max_steps);
     addchild(fit_settings_node, "bin_size", bin_size);
     addchild(fit_settings_node, "bootstrap_samples", bssamples);

@@ -153,6 +153,7 @@ bool bootstrap_with_range_change(int proc,
                                  int svd_fixed_cut,
                                  double svd_ratio_cut,
                                  double svd_absolute_cut,
+                                 double off_diagonal_rescale_factor,
                                  bool bootstrap_normalization,
                                  bool bayesian,
                                  gaussian_prior* _gaussian_prior,
@@ -352,6 +353,9 @@ bool bootstrap_with_range_change(int proc,
         break;
       case absolute_cut:
         _fitter->set_svd_cut_absolute(svd_absolute_cut);
+        break;
+      case off_diagonal_rescale:
+        _fitter->set_off_diagonal_rescale_factor(off_diagonal_rescale_factor);
         break;
       default:
         break;

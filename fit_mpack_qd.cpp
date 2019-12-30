@@ -55,6 +55,38 @@ bool fit(fitter* _fitter,
 }
 
 
+void write_data_covariance(const std::string filename,
+                           fitter* _fitter)
+{
+  using namespace std;
+  const int precision=10;
+
+  std::ofstream output(filename.c_str());
+  if(!output)
+  {
+    std::cerr << "Error: could not write to file \"" << filename << "\"" << std::endl << std::endl;
+    return;
+  }
+
+  output.precision(precision);
+  output.setf(ios::left);
+  
+  int n_fit_points=_fitter->get_dof();
+
+  for(int m1=0; m1<n_fit_points; ++m1)
+  {
+    for(int m2=0; m2<n_fit_points; ++m2)
+    {
+      output << m1 << "  " << m2 << "  " << _fitter->get_data_covariance(m1, m2) << std::endl;
+    }
+  }
+
+  output.close();
+}
+
+
+
+
 void print_fit_results(fitter* _fitter,
                        bool bayesian,
                        const std::vector< std::string >& parameter_names,
