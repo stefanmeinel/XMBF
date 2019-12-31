@@ -32,6 +32,13 @@ enum inversion_method
   off_diagonal_rescale = 6
 };
 
+enum cov_normalization
+{
+  standard_normalization = 0,
+  bootstrap_normalization = 1,
+  jackknife_normalization = 2
+};
+
 const double default_start_lambda=0.001;
 const double default_lambda_fac=10.0;
 const bool default_tolerance_dof=true;
@@ -40,7 +47,7 @@ const inversion_method default_inversion_method=LU_inversion;
 const int default_svd_cut=0;
 const double default_svd_ratio=0.000001;
 const double default_svd_value=0.000000000001;
-const bool default_bootstrap_normalization=false;
+const cov_normalization default_cov_normalization=standard_normalization;
 const double default_num_diff_step=1e-08;
 const double default_off_diagonal_rescale_factor=0.9;
 
@@ -69,7 +76,7 @@ class fitter
 
     void set_tolerance_dof(bool value);
 
-    void set_bootstrap_normalization(bool value);
+    void set_cov_normalization(cov_normalization cov_norm);
 
     void set_parameter_name(int parameter, string name);
 
@@ -131,7 +138,7 @@ class fitter
     double tolerance;
     bool tolerance_dof;
 
-    bool bootstrap_normalization;
+    cov_normalization cn;
 
     vector< double > start_vals;
 

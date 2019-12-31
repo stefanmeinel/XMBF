@@ -37,7 +37,7 @@ bool get_fit_settings(bool bootstrap,
                       bool& restrict_bootstrap_range,
                       int& bootstrap_range_min,
                       int& bootstrap_range_max,
-                      bool& bootstrap_normalization,
+                      cov_normalization& cn,
                       const xmlpp::Node* root_node);
 
 #endif

@@ -8,7 +8,7 @@ bool plot(std::vector<abstract_model*> models,
           const std::vector< std::vector< std::string > >& plot_max,
           const std::vector< std::vector< double > >& plot_step,
           int bin_size, bool restrict_data, int start_n_data, int stop_n_data,
-          bool bootstrap_normalization,
+          const cov_normalization cn,
           const std::vector< std::vector< std::vector< std::vector< double > > > >& all_file_data,
           const std::vector< std::vector< std::vector< double > > >& all_file_arguments,
           const std::string& plot_output_dir,
@@ -158,14 +158,18 @@ bool plot(std::vector<abstract_model*> models,
     }
     std::vector< std::vector< double > > sigma(plot_n_data_points, zero_temp);
 
-    double normalization;
-    if(bootstrap_normalization)
+    double normalization=1.0;
+    if(cn==standard_normalization)
+    {
+      normalization=double(plot_n_data_sets)*double(plot_n_data_sets-1);
+    }
+    else if(cn==bootstrap_normalization)
     {
       normalization=double(plot_n_data_sets-1);
     }
-    else
+    else if(cn==jackknife_normalization)
     {
-      normalization=double(plot_n_data_sets)*double(plot_n_data_sets-1);
+      normalization=double(plot_n_data_sets)/double(plot_n_data_sets-1);
     }
 
 

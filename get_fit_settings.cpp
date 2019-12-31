@@ -29,7 +29,7 @@ bool get_fit_settings(bool bootstrap,
                       bool& restrict_bootstrap_range,
                       int& bootstrap_range_min,
                       int& bootstrap_range_max,
-                      bool& bootstrap_normalization,
+                      cov_normalization& cn,
                       const xmlpp::Node* root_node)
 {
   xmlpp::NodeSet fitsettings_nodeset = root_node->find("fit_settings");
@@ -124,16 +124,38 @@ bool get_fit_settings(bool bootstrap,
       }
     }
   }
-  bootstrap_normalization=false;
-  if(name_exists(*fitsettings_nodeset.begin(), "bootstrap_normalization"))
+  cn=standard_normalization;
+  if(name_exists(*fitsettings_nodeset.begin(), "bootstrap_normalization")) // for backward compatibility
   {
-    try { bootstrap_normalization=get_bool(*fitsettings_nodeset.begin(), "bootstrap_normalization"); } catch (int e) { return false; }
+    bool boot_n;
+    try { boot_n=get_bool(*fitsettings_nodeset.begin(), "bootstrap_normalization"); } catch (int e) { return false; }
+    if(boot_n)
+    {
+      cn=bootstrap_normalization;
+    }
   }
-  if(bootstrap_normalization)
+  if(name_exists(*fitsettings_nodeset.begin(), "cov_normalization"))
+  {
+    std::string cn_str; try { cn_str=get_string(*fitsettings_nodeset.begin(), "cov_normalization"); } catch (int e) { return false; }
+    if(cn_str=="standard")
+    {
+      cn=standard_normalization;
+    }
+    else if(cn_str=="bootstrap")
+    {
+      cn=bootstrap_normalization;
+    }
+    else if(cn_str=="jackknife")
+    {
+      cn=jackknife_normalization;
+    }    
+  }
+  
+  if( (cn==bootstrap_normalization) || (cn==jackknife_normalization) )
   {
     if(bin_size!=1)
     {
-      std::cerr << "Warning: setting bin size to 1 because of bootstrap_normalization" << std::endl;
+      std::cerr << "Warning: setting bin size to 1 because of bootstrap/jackknife normalization" << std::endl;
       bin_size=1;
     }
   }

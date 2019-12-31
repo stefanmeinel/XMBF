@@ -28,6 +28,12 @@ enum inversion_method
   off_diagonal_rescale = 6
 };
 
+enum cov_normalization
+{
+  standard_normalization = 0,
+  bootstrap_normalization = 1,
+  jackknife_normalization = 2
+};
 
 const int start_n_functions=1;
 const int start_n_variables=1;
@@ -40,7 +46,7 @@ const bool start_second_deriv_covariance=false;
 const double start_num_diff_step=1e-08;
 const bool start_use_bse=false;
 const bool start_restrict_data=false;
-const bool start_bootstrap_normalization=false;
+const cov_normalization start_cov_normalization=standard_normalization;
 const int start_start_data=1;
 const int start_stop_data=1000;
 const double start_startlambda=0.001;
@@ -220,7 +226,7 @@ double num_diff_step;
 bool use_bse;
 bool restrict_data;
 
-bool bootstrap_normalization;
+cov_normalization cn;
 
 int start_n_data;
 int stop_n_data;
@@ -298,7 +304,7 @@ void init()
   num_diff_step=start_num_diff_step;
   use_bse=start_use_bse;
   restrict_data=start_restrict_data;
-  bootstrap_normalization=start_bootstrap_normalization;
+  cn=start_cov_normalization;
   start_n_data=start_start_data;
   stop_n_data=start_stop_data;
   start_lambda=start_startlambda;
@@ -614,13 +620,25 @@ bool loadFile(const string& fileName)
       bin_size=binsize;
     }
   }
-  if(m.exists("bootstrapnormalization"))
+  if(m.exists("bootstrapnormalization")) // for backward compatibility
   {
-    bootstrap_normalization=m.get_bool("bootstrapnormalization");
-    if(bootstrap_normalization)
+    bool boot_n=m.get_bool("bootstrapnormalization");
+    if(boot_n)
     {
-      bin_size=1;
+      cn=bootstrap_normalization;
     }
+    else
+    {
+      cn=standard_normalization;
+    }
+  }
+  if(m.exists("covnormalization"))
+  {
+    cn=static_cast<cov_normalization>(m.get_int("covnormalization"));
+  }
+  if( (cn==bootstrap_normalization) || (cn==jackknife_normalization) )
+  {
+    bin_size=1;
   }
 
   if(m.exists("datafiletype"))
@@ -1979,7 +1997,20 @@ int main(int argc, char *argv[])
     addchild(fit_settings_node, "chi_sqr_tolerance",  double_to_string(chisqr_tolerance, 14));
     addchild(fit_settings_node, "chi_sqr_per_dof_tolerance",  bool_to_string(false));
     addchild(fit_settings_node, "n_parameters_dof",  n_parameters_dof);
-    addchild(fit_settings_node, "bootstrap_normalization", bool_to_string(bootstrap_normalization));
+    switch(cn)
+    {
+      case standard_normalization:
+        addchild(fit_settings_node, "cov_normalization", "standard");
+        break;
+      case bootstrap_normalization:
+        addchild(fit_settings_node, "cov_normalization", "bootstrap");
+        break;
+      case jackknife_normalization:
+        addchild(fit_settings_node, "cov_normalization", "jackknife");
+        break;
+      default:
+        break;
+    }
 
     switch(inv_method)
     {

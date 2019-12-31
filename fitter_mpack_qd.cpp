@@ -24,7 +24,7 @@ fitter::fitter(abstract_global_model* fit_model,
   tolerance=default_tolerance;
   tolerance_dof=default_tolerance_dof;
 
-  bootstrap_normalization=default_bootstrap_normalization;
+  cn=default_cov_normalization;
 
   start_vals.resize(n_parameters, 0.0);
   parameter_names.resize(n_parameters);
@@ -115,15 +115,22 @@ void fitter::set_data(const vector< vector< double > >& data)
 
 // calculate data correlation matrix (store in inv_corr)
 
-  qd_real normalization;
-  if(bootstrap_normalization)
-  {
-    normalization=qd_real(n_data_sets-1);
-  }
-  else
+  qd_real normalization=1.0;
+  if(cn==standard_normalization)
   {
     normalization=qd_real(n_data_sets)*qd_real(n_data_sets-1);
   }
+  else if(cn==bootstrap_normalization)
+  {
+    normalization=qd_real(n_data_sets-1);
+  }
+  else if(cn==jackknife_normalization)
+  {
+    normalization=qd_real(n_data_sets)/qd_real(n_data_sets-1);
+  }
+  
+  
+  
 
   if(inv_method==diagonal)
   {
@@ -351,9 +358,9 @@ void fitter::set_tolerance_dof(bool value)
 }
 
 
-void fitter::set_bootstrap_normalization(bool value)
+void fitter::set_cov_normalization(cov_normalization cov_norm)
 {
-  bootstrap_normalization=value;
+  cn=cov_norm;
 }
 
 

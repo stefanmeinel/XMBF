@@ -52,7 +52,7 @@ void print_usage()
 
 int main(int argc, char *argv[])
 {
-  std::cout << std::endl << "This is XMBF_mpack_qd version 2.53" << std::endl << std::endl;
+  std::cout << std::endl << "This is XMBF_mpack_qd version 2.54" << std::endl << std::endl;
   if(argc<2)
   {
     print_usage();
@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
         bool use_bse_file;
         std::string bse_file;
         bool restrict_bootstrap_range;
-        bool bootstrap_normalization;
+        cov_normalization cn;
         int bootstrap_range_min;
         int bootstrap_range_max;
 
@@ -303,7 +303,7 @@ int main(int argc, char *argv[])
                              restrict_bootstrap_range,
                              bootstrap_range_min,
                              bootstrap_range_max,
-                             bootstrap_normalization,
+                             cn,
                              root))
         {
           return 1;
@@ -511,7 +511,7 @@ int main(int argc, char *argv[])
           default:
             break;
         }
-        _fitter->set_bootstrap_normalization(bootstrap_normalization);
+        _fitter->set_cov_normalization(cn);
 
         // perform fit
         int steps_needed;
@@ -578,7 +578,7 @@ int main(int argc, char *argv[])
                    plot_max,
                    plot_step,
                    bin_size, restrict_data_range, data_range_min, data_range_max,
-                   bootstrap_normalization,
+                   cn,
                    all_file_data,
                    all_file_arguments,
                    plot_output_dir,
@@ -618,7 +618,7 @@ int main(int argc, char *argv[])
           }
           else
           {
-            if(!bootstrap_with_range_change(c_model, models, constant_values, constant_names, bin_size, restrict_data_range, data_range_min, data_range_max, fit_min, fit_max, has_fit_step, fit_step, has_range_bootstrap_file, range_bootstrap_file, all_file_data, all_file_arguments, _fitter, num_diff, second_deriv_covariance, second_deriv_minimization, num_diff_step, start_lambda, lambda_factor, chi_sqr_tolerance, chi_sqr_tolerance_dof, inv_method, svd_fixed_cut, svd_ratio_cut, svd_absolute_cut, off_diagonal_rescale_factor, bootstrap_normalization, bayesian, _gaussian_prior, _chisqr_extra_term, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, random_priors, bootstrap_samples, use_bse_file, bse_file, restrict_bootstrap_range, bootstrap_range_min, bootstrap_range_max, bootstrap_output_dir, inputfile))
+            if(!bootstrap_with_range_change(c_model, models, constant_values, constant_names, bin_size, restrict_data_range, data_range_min, data_range_max, fit_min, fit_max, has_fit_step, fit_step, has_range_bootstrap_file, range_bootstrap_file, all_file_data, all_file_arguments, _fitter, num_diff, second_deriv_covariance, second_deriv_minimization, num_diff_step, start_lambda, lambda_factor, chi_sqr_tolerance, chi_sqr_tolerance_dof, inv_method, svd_fixed_cut, svd_ratio_cut, svd_absolute_cut, off_diagonal_rescale_factor, cn, bayesian, _gaussian_prior, _chisqr_extra_term, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, random_priors, bootstrap_samples, use_bse_file, bse_file, restrict_bootstrap_range, bootstrap_range_min, bootstrap_range_max, bootstrap_output_dir, inputfile))
             {
               return 1;
             }

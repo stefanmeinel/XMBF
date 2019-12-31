@@ -269,7 +269,7 @@ bool bootstrap_with_range_change(combined_model* c_model,
                                  double svd_ratio_cut,
                                  double svd_absolute_cut,
                                  double off_diagonal_rescale_factor,
-                                 bool bootstrap_normalization,
+                                 cov_normalization cn,
                                  bool bayesian,
                                  gaussian_prior* _gaussian_prior,
                                  chisqr_extra_term* _chisqr_extra_term,
@@ -517,7 +517,7 @@ bool bootstrap_with_range_change(combined_model* c_model,
       default:
         break;
     }
-    _fitter->set_bootstrap_normalization(bootstrap_normalization);
+    _fitter->set_cov_normalization(cn);
 
     for(int p=0; p<start_values.size(); ++p)
     {
