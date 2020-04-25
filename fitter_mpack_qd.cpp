@@ -29,6 +29,7 @@ fitter::fitter(abstract_global_model* fit_model,
   start_vals.resize(n_parameters, 0.0);
   parameter_names.resize(n_parameters);
 
+  corr=NULL;
   inv_corr=NULL;
 
   model->set_parameters(start_vals);
@@ -54,6 +55,10 @@ fitter::fitter(abstract_global_model* fit_model,
 
 fitter::~fitter()
 {
+  if(corr!=NULL)
+  {
+    gsl_matrix_free(corr);
+  }
   if(inv_corr!=NULL)
   {
     delete[] inv_corr;
@@ -97,7 +102,13 @@ void fitter::set_data(const vector< vector< double > >& data)
 
   inv_corr=new qd_real[n_fit_points*n_fit_points];
 
+  if(corr!=NULL)
+  {
+    gsl_matrix_free(corr);
+  }
+  corr=gsl_matrix_alloc(n_fit_points, n_fit_points);
 
+  
 // calculate average over data sets
 
   average=vector< qd_real >(n_fit_points, 0.0);
@@ -113,7 +124,9 @@ void fitter::set_data(const vector< vector< double > >& data)
     average[m]/=n_data_sets;
   }
 
-// calculate data correlation matrix (store in inv_corr)
+// calculate data correlation matrix (store in both inv_corr and corr)
+
+
 
   qd_real normalization=1.0;
   if(cn==standard_normalization)
@@ -139,6 +152,7 @@ void fitter::set_data(const vector< vector< double > >& data)
       for(int m2=0; m2<n_fit_points; ++m2)
       {
         inv_corr[m1+m2*n_fit_points]=0.0;
+        gsl_matrix_set(corr, m1, m2, 0.0);
       }
     }
     for(int m=0; m<n_fit_points; ++m)
@@ -146,7 +160,7 @@ void fitter::set_data(const vector< vector< double > >& data)
       qd_real corr_temp=0.0;
       for(int n=0; n<n_data_sets; ++n)
       {
-        corr_temp+=(data[n][m]-average[m])*(data[n][m]-average[m]);
+        corr_temp+=(qd_real(data[n][m])-average[m])*(qd_real(data[n][m])-average[m]);
       }
       if(corr_temp==qd_real(0.0))
       {
@@ -154,6 +168,7 @@ void fitter::set_data(const vector< vector< double > >& data)
         return;
       }
       inv_corr[m+m*n_fit_points]=normalization/corr_temp;  // actually compute inverse here. done.
+      gsl_matrix_set(corr, m, m, to_double(corr_temp/normalization));
     }
     return;
   }
@@ -168,7 +183,7 @@ void fitter::set_data(const vector< vector< double > >& data)
         {
           for(int n=0; n<n_data_sets; ++n)
           {
-            corr_temp+=(data[n][m1]-average[m1])*(data[n][m2]-average[m2]);
+            corr_temp+=(qd_real(data[n][m1])-average[m1])*(qd_real(data[n][m2])-average[m2]);
           }
         }
         if( inv_method==off_diagonal_rescale )
@@ -179,7 +194,7 @@ void fitter::set_data(const vector< vector< double > >& data)
           }
           else
           {
-            inv_corr[m1+m2*n_fit_points]=off_diagonal_rescale_factor*corr_temp/normalization;
+            inv_corr[m1+m2*n_fit_points]=qd_real(off_diagonal_rescale_factor)*corr_temp/normalization;
           }
         }
         else
@@ -196,7 +211,16 @@ void fitter::set_data(const vector< vector< double > >& data)
         inv_corr[m1+m2*n_fit_points]=inv_corr[m2+m1*n_fit_points];
       }
     }
+    for(int m1=0; m1<n_fit_points; ++m1)
+    {
+      for(int m2=0; m2<n_fit_points; ++m2)
+      {
+        gsl_matrix_set(corr, m1, m2, to_double(inv_corr[m1+m2*n_fit_points]));
+      }
+    }
+    
   }
+
 
 
 // calculate inverse correlation matrix inv_corr
@@ -242,7 +266,7 @@ void fitter::set_data(const vector< vector< double > >& data)
       delete[] ipiv;
     }
   }
-  if( (inv_method!=LU_inversion) || singular)
+  if( ((inv_method!=LU_inversion) && (inv_method!=off_diagonal_rescale)) || singular)
   {
     qd_real* inv_corr_eigenvectors=new qd_real[n_fit_points*n_fit_points];
     
@@ -341,6 +365,13 @@ void fitter::set_data(const vector< vector< double > >& data)
    
   }
 }
+
+
+double fitter::get_data_covariance(int m1, int m2)
+{
+  return gsl_matrix_get(corr, m1, m2);
+}
+
 
 
 void fitter::set_average_data(const vector< double >& average_data)

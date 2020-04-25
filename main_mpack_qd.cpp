@@ -32,7 +32,7 @@
 #include "bootstrap_mpack_qd.h"
 #include "multifit_mpack_qd.h"
 #include "write_fit_results_mpack_qd.h"
-#include "plot.h"
+#include "plot_mpack_qd.h"
 
 void print_usage()
 {
@@ -52,7 +52,7 @@ void print_usage()
 
 int main(int argc, char *argv[])
 {
-  std::cout << std::endl << "This is XMBF_mpack_qd version 2.54" << std::endl << std::endl;
+  std::cout << std::endl << "This is XMBF_mpack_qd version 2.55" << std::endl << std::endl;
   if(argc<2)
   {
     print_usage();

@@ -73,6 +73,7 @@ class fitter
 //-----------------------------------------------------------------------------
 //    data[n_data_sets][n_fit_points]
 //-----------------------------------------------------------------------------
+    double get_data_covariance(int m1, int m2);
 
     void set_average_data(const vector< double >& average_data);
 
@@ -147,6 +148,8 @@ class fitter
     vector< qd_real > average;
 
     vector< string > parameter_names;
+
+    gsl_matrix* corr;
 
     qd_real* inv_corr;
 

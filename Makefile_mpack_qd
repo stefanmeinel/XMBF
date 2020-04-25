@@ -2,17 +2,17 @@ CXX           = g++
 CXXFLAGS      = -O3 -Wall -Wno-sign-compare
 
 #64 bit
-INCPATH       = -I/usr/include/libxml++-2.6 -I/usr/lib64/libxml++-2.6/include -I/usr/include/libxml2 -I/usr/include/glibmm-2.4 -I/usr/lib64/glibmm-2.4/include -I/usr/include/sigc++-2.0 -I/usr/lib64/sigc++-2.0/include -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/home/stefan/science/code/mpack-0.6.7/installation/include/mpack -I/home/stefan/science/code/mpack-0.6.7/installation/include/qd -I/home/stefan/science/code/mpack-0.6.7/installation/include
+INCPATH       = -I/usr/include/libxml++-2.6 -I/usr/lib64/libxml++-2.6/include -I/usr/include/libxml2 -I/usr/include/glibmm-2.4 -I/usr/lib64/glibmm-2.4/include -I/usr/include/sigc++-2.0 -I/usr/lib64/sigc++-2.0/include -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include -I/home/stefan/science/code/mpack-0.8.0/installation/include/mpack 
 
 LIBS          = -lgsl -lgslcblas -lm -lxml++-2.6 -lxml2 -lglibmm-2.4 -lgobject-2.0 -lsigc-2.0 -lglib-2.0 -lmlapack_qd -lmblas_qd -lqd -fopenmp
 
-# note: for the program to run, the environment variable $LD_LIBRARY_PATH must contain "/home/stefan/science/code/mpack-0.6.7/installation/lib"
+# note: for the program to run, the environment variable $LD_LIBRARY_PATH must contain "/home/stefan/science/code/mpack-0.8.0/installation/lib64"
 
 
 
 
 LINK          = g++
-LFLAGS        = -L/home/stefan/science/code/mpack-0.6.7/installation/lib
+LFLAGS        = -L/home/stefan/science/code/mpack-0.8.0/installation/lib64
 DEL_FILE      = rm -f
 
 TARGET        = XMBF_mpack_qd
@@ -36,7 +36,7 @@ SOURCES       = main_mpack_qd.cpp \
 		get_parameters.cpp \
 		fit_mpack_qd.cpp \
 		write_fit_results_mpack_qd.cpp \
-		plot.cpp \
+		plot_mpack_qd.cpp \
 		bootstrap_mpack_qd.cpp \
 		multifit_mpack_qd.cpp \
 		string_tools.cpp \
@@ -153,7 +153,7 @@ OBJECTS       = main_mpack_qd.o \
 		get_parameters.o \
 		fit_mpack_qd.o \
 		write_fit_results_mpack_qd.o \
-		plot.o \
+		plot_mpack_qd.o \
 		bootstrap_mpack_qd.o \
 		multifit_mpack_qd.o \
 		string_tools.o \
@@ -273,7 +273,7 @@ main_mpack_qd.o: main_mpack_qd.cpp \
 		prepare_fit_data.h \
 		fit_mpack_qd.h \
 		write_fit_results_mpack_qd.h \
-		plot.h \
+		plot_mpack_qd.h \
 		bootstrap_mpack_qd.h \
 		multifit_mpack_qd.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main_mpack_qd.o main_mpack_qd.cpp
@@ -379,8 +379,8 @@ create_models.o: create_models.cpp \
 prepare_fit_data.o: prepare_fit_data.cpp prepare_fit_data.h parser.h abstract_model.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o prepare_fit_data.o prepare_fit_data.cpp
 
-plot.o: plot.cpp plot.h parser.h abstract_model.h
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o plot.o plot.cpp
+plot_mpack_qd.o: plot_mpack_qd.cpp plot_mpack_qd.h parser.h abstract_model.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o plot_mpack_qd.o plot_mpack_qd.cpp
 
 string_tools.o: string_tools.cpp string_tools.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o string_tools.o string_tools.cpp
