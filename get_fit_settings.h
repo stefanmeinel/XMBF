@@ -9,6 +9,7 @@
 #include "fitter.h"
 
 bool get_fit_settings(bool bootstrap,
+                      bool multifit,
                       bool& restrict_data_range,
                       int& data_range_min,
                       int& data_range_max,

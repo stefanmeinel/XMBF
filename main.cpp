@@ -52,7 +52,7 @@ void print_usage()
 
 int main(int argc, char *argv[])
 {
-  std::cout << std::endl << "This is XMBF version 2.55" << std::endl << std::endl;
+  std::cout << std::endl << "This is XMBF version 2.56" << std::endl << std::endl;
   if(argc<2)
   {
     print_usage();
@@ -275,6 +275,7 @@ int main(int argc, char *argv[])
         int bootstrap_range_max;
 
         if(!get_fit_settings(perform_bootstrap,
+                             perform_multifit,
                              restrict_data_range,
                              data_range_min,
                              data_range_max,

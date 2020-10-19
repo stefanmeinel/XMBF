@@ -181,6 +181,7 @@ int main(int argc, char *argv[])
         int bootstrap_range_max;
 
         if(!get_fit_settings(perform_bootstrap,
+                             perform_multifit,
                              restrict_data_range,
                              data_range_min,
                              data_range_max,

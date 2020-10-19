@@ -1,6 +1,7 @@
 #include "get_fit_settings_mpack_qd.h"
 
 bool get_fit_settings(bool bootstrap,
+                      bool multifit,
                       bool& restrict_data_range,
                       int& data_range_min,
                       int& data_range_max,
@@ -122,6 +123,13 @@ bool get_fit_settings(bool bootstrap,
         try { bootstrap_range_min=get_positive_int(*fitsettings_nodeset.begin(), "bootstrap_range_min"); } catch (int e) { return false; }
         try { bootstrap_range_max=get_positive_int(*fitsettings_nodeset.begin(), "bootstrap_range_max"); } catch (int e) { return false; }
       }
+    }
+  }
+  if(multifit)
+  {
+    if(bayesian)
+    {
+      try { random_priors=get_bool(*fitsettings_nodeset.begin(), "random_priors"); } catch (int e) { return false; }
     }
   }
   cn=standard_normalization;
