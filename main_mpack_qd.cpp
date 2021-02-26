@@ -52,7 +52,7 @@ void print_usage()
 
 int main(int argc, char *argv[])
 {
-  std::cout << std::endl << "This is XMBF_mpack_qd version 2.56" << std::endl << std::endl;
+  std::cout << std::endl << "This is XMBF_mpack_qd version 2.57" << std::endl << std::endl;
   if(argc<2)
   {
     print_usage();
@@ -517,7 +517,7 @@ int main(int argc, char *argv[])
         // perform fit
         int steps_needed;
         bool converged=true;
-        if(!fit(_fitter, bayesian, _gaussian_prior, global_fit_data, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, verbose_level, steps_needed))
+        if(!fit(_fitter, bayesian, _gaussian_prior, inv_method, global_fit_data, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, verbose_level, steps_needed))
         {
           return 1;
         }

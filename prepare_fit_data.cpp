@@ -35,9 +35,9 @@ bool prepare_fit_data(std::vector<abstract_model*> models,
       std::cerr << "Error: range of data sets exceeds data file" << std::endl << std::endl;
       return false;
     }
-    if (fit_n_data_sets<10)
+    if (fit_n_data_sets<5)
     {
-      std::cerr << "Error: range of data sets too small" << std::endl << std::endl;
+      std::cerr << "Error: fewer than 5 data samples" << std::endl << std::endl;
       return false;
     }
   }
@@ -162,9 +162,9 @@ bool prepare_fit_data(std::vector<abstract_model*> models,
       std::cerr << "Error: No data points in fitting range" << std::endl << std::endl;
       return false;
     }
-    if(fit_n_data_sets/bin_size<10)
+    if(fit_n_data_sets/bin_size<5)
     {
-      std::cerr << "Error: Bin size too large" << std::endl << std::endl;
+      std::cerr << "Error: fewer than 5 data samples (after binning)" << std::endl << std::endl;
       return false;
     }
 

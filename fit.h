@@ -18,6 +18,7 @@
 bool fit(fitter* _fitter,
          bool bayesian,
          gaussian_prior* _gaussian_prior,
+         inversion_method inv_method,
          const std::vector< std::vector< double > >& global_fit_data,
          const std::vector< std::string >& parameter_names,
          const std::vector< double >& start_values,

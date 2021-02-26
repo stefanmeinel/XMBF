@@ -300,9 +300,9 @@ bool bootstrap_with_range_change(combined_model* c_model,
       std::cerr << "Error: range of data sets exceeds data file" << std::endl << std::endl;
       return false;
     }
-    if (fit_n_data_sets<10)
+    if (fit_n_data_sets<5)
     {
-      std::cerr << "Error: range of data sets too small" << std::endl << std::endl;
+      std::cerr << "Error: fewer than 5 data samples" << std::endl << std::endl;
       return false;
     }
   }

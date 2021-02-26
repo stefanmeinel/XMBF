@@ -4,6 +4,7 @@
 bool fit(fitter* _fitter,
          bool bayesian,
          gaussian_prior* _gaussian_prior,
+         inversion_method inv_method,
          const std::vector< std::vector< double > >& global_fit_data,
          const std::vector< std::string >& parameter_names,
          const std::vector< double >& start_values,
@@ -17,10 +18,13 @@ bool fit(fitter* _fitter,
   _fitter->set_data(global_fit_data);
   int dof=_fitter->get_dof();
   int cut=_fitter->get_cut();
-  if( (dof-cut) > global_fit_data.size() )
+  if(inv_method!=diagonal)
   {
-    std::cerr << " Error: not enough data sets (after binning) to obtain (pseudo-)inverse of data correlation matrix. Reduce bin size or increase SVD cut" << std::endl << std::endl;
-    return false;
+    if( (dof-cut) > global_fit_data.size() )
+    {
+      std::cerr << " Error: not enough data sets (after binning) to obtain (pseudo-)inverse of data correlation matrix. Reduce bin size or increase SVD cut" << std::endl << std::endl;
+      return false;
+    }
   }
   std::cout << "Number of data sets (after binning) is " << global_fit_data.size() << std::endl;
   std::cout << "Kept " << dof-cut << " out of " << dof << " eigenvalues for data correlation matrix." << std::endl << std::endl;

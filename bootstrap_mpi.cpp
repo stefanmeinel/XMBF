@@ -188,11 +188,11 @@ bool bootstrap_with_range_change(int proc,
       }
       return false;
     }
-    if (fit_n_data_sets<10)
+    if (fit_n_data_sets<5)
     {
       if(proc==0)
       {
-        std::cerr << "Error: range of data sets too small" << std::endl << std::endl;
+        std::cerr << "Error: fewer than 5 data samples" << std::endl << std::endl;
       }
       return false;
     }
