@@ -5,9 +5,7 @@
 
 bool load_data_file_ASCII(string file_name, int _n_functions, int _n_variables, vector< vector< vector< double > > >& file_data, vector< vector< double > >& file_arguments)
 {
-  int proc;
-  
-  MPI_Comm_rank(MPI_COMM_WORLD, &proc);
+  int proc = MPI::COMM_WORLD.Get_rank();
 
   ifstream* input=NULL;
   int n_data_points;
@@ -40,9 +38,8 @@ bool load_data_file_ASCII(string file_name, int _n_functions, int _n_variables, 
     *input >> n_data_sets;
   }
 
-  MPI_Bcast(&n_data_points, 1, MPI_INT, 0, MPI_COMM_WORLD);
- 
-  MPI_Bcast(&n_data_sets, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI::COMM_WORLD.Bcast(&n_data_points, 1, MPI::INT, 0);
+  MPI::COMM_WORLD.Bcast(&n_data_sets, 1, MPI::INT, 0);
 
   double* f_args=new double[n_data_points*_n_variables];
   double* f_data=new double[n_data_sets*n_data_points*_n_functions];
@@ -85,9 +82,8 @@ bool load_data_file_ASCII(string file_name, int _n_functions, int _n_variables, 
     input -> close();
     delete input;
   }
-  MPI_Bcast(f_args, n_data_points*_n_variables, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-  MPI_Bcast(f_data, n_data_sets*n_data_points*_n_functions, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI::COMM_WORLD.Bcast(f_args, n_data_points*_n_variables, MPI::DOUBLE, 0);
+  MPI::COMM_WORLD.Bcast(f_data, n_data_sets*n_data_points*_n_functions, MPI::DOUBLE, 0);
 
   file_arguments.clear();
   file_data.clear();
@@ -125,9 +121,7 @@ bool load_data_file_ASCII(string file_name, int _n_functions, int _n_variables, 
 
 bool load_data_file_binary(string file_name, int _n_functions, int _n_variables, vector< vector< vector< double > > >& file_data, vector< vector< double > >& file_arguments)
 {
-  int proc;
-  
-  MPI_Comm_rank(MPI_COMM_WORLD, &proc);
+  int proc = MPI::COMM_WORLD.Get_rank();
 
   ifstream* input=NULL;
   int n_data_points;
@@ -166,9 +160,8 @@ bool load_data_file_binary(string file_name, int _n_functions, int _n_variables,
     n_data_sets=static_cast<int>(temp);
   }
 
-  MPI_Bcast(&n_data_points, 1, MPI_INT, 0, MPI_COMM_WORLD);
- 
-  MPI_Bcast(&n_data_sets, 1, MPI_INT, 0, MPI_COMM_WORLD);
+  MPI::COMM_WORLD.Bcast(&n_data_points, 1, MPI::INT, 0);
+  MPI::COMM_WORLD.Bcast(&n_data_sets, 1, MPI::INT, 0);
 
   double* f_args=new double[n_data_points*_n_variables];
   double* f_data=new double[n_data_sets*n_data_points*_n_functions];
@@ -195,9 +188,8 @@ bool load_data_file_binary(string file_name, int _n_functions, int _n_variables,
     input -> close();
     delete input;
   }
-  MPI_Bcast(f_args, n_data_points*_n_variables, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-
-  MPI_Bcast(f_data, n_data_sets*n_data_points*_n_functions, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  MPI::COMM_WORLD.Bcast(f_args, n_data_points*_n_variables, MPI::DOUBLE, 0);
+  MPI::COMM_WORLD.Bcast(f_data, n_data_sets*n_data_points*_n_functions, MPI::DOUBLE, 0);
 
   file_arguments.clear();
   file_data.clear();

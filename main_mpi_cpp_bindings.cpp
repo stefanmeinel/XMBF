@@ -47,13 +47,10 @@ void print_usage()
 
 int main(int argc, char *argv[])
 {
-  MPI_Init(&argc, &argv);
+  MPI::Init(argc, argv);
 
-  int proc;
-  int n_procs;
-  
-  MPI_Comm_rank(MPI_COMM_WORLD, &proc);
-  MPI_Comm_size(MPI_COMM_WORLD, &n_procs);  
+  int proc = MPI::COMM_WORLD.Get_rank();
+  int n_procs = MPI::COMM_WORLD.Get_size();
 
   if(argc!=4)
   {
@@ -61,7 +58,7 @@ int main(int argc, char *argv[])
     {
       print_usage();
     }
-    MPI_Abort(MPI_COMM_WORLD, 1);
+    MPI::COMM_WORLD.Abort(1);
   }
 
   gsl_set_error_handler_off();
@@ -77,7 +74,7 @@ int main(int argc, char *argv[])
     {
       print_usage();
     }
-    MPI_Abort(MPI_COMM_WORLD, 1);
+    MPI::COMM_WORLD.Abort(1);
   }
 
 
@@ -96,7 +93,7 @@ int main(int argc, char *argv[])
       {
         print_usage();
       }
-      MPI_Abort(MPI_COMM_WORLD, 1);
+      MPI::COMM_WORLD.Abort(1);
     }
     if(*(bootstrap_output_dir.end()-1)!='/')
     {
@@ -119,7 +116,7 @@ int main(int argc, char *argv[])
       {
         print_usage();
       }
-      MPI_Abort(MPI_COMM_WORLD, 1);
+      MPI::COMM_WORLD.Abort(1);
     }
     if(*(multifit_output_dir.end()-1)!='/')
     {
@@ -131,7 +128,7 @@ int main(int argc, char *argv[])
 
   if(proc==0)
   {
-    std::cout << std::endl << "This is XMBF_mpi version 2.57" << std::endl << std::endl;
+    std::cout << std::endl << "This is XMBF_mpi version 2.55" << std::endl << std::endl;
     std::cout << std::endl << "Number of processes = " << n_procs << std::endl << std::endl;
     std::cout << "Input file: "  << inputfile  << std::endl << std::endl;
   }
@@ -149,7 +146,7 @@ int main(int argc, char *argv[])
         // replace macros
         if(!replace_macros(root))
         {
-          MPI_Abort(MPI_COMM_WORLD, 1);
+          MPI::COMM_WORLD.Abort(1);
         }
 
         // get fit_settings;
@@ -216,7 +213,7 @@ int main(int argc, char *argv[])
                              cn,
                              root))
         {
-          MPI_Abort(MPI_COMM_WORLD, 1);
+          MPI::COMM_WORLD.Abort(1);
         }
 
         // create models
@@ -236,7 +233,7 @@ int main(int argc, char *argv[])
         std::vector< std::vector< std::vector< double > > > all_file_arguments;
         if(!create_models(models, model_groups, fit_min, fit_max, has_fit_step, fit_step, has_range_bootstrap_file, range_bootstrap_file, perform_plot, plot_order, plot_min, plot_max, plot_step, all_file_data, all_file_arguments, num_diff, root))
         {
-          MPI_Abort(MPI_COMM_WORLD, 1);
+          MPI::COMM_WORLD.Abort(1);
         }
         combined_model* c_model=new combined_model();
         
@@ -261,7 +258,7 @@ int main(int argc, char *argv[])
         std::vector< std::string > constant_names;
         if(!get_constants(c_model, constant_names, constant_values, root))
         {
-          MPI_Abort(MPI_COMM_WORLD, 1);
+          MPI::COMM_WORLD.Abort(1);
         }
 
         // read parameter values
@@ -271,7 +268,7 @@ int main(int argc, char *argv[])
         std::vector< double > sigmas(c_model->get_n_parameters());
         if(!get_parameters(c_model, bayesian, parameter_names, start_values, priors, sigmas, root))
         {
-          MPI_Abort(MPI_COMM_WORLD, 1);
+          MPI::COMM_WORLD.Abort(1);
         }
         if(n_parameters_dof==-1)  // i.e. n_parameters_dof not found in xml file
         {
@@ -291,12 +288,12 @@ int main(int argc, char *argv[])
         if(!prepare_fit_data(models, constant_values, constant_names, bin_size, restrict_data_range, data_range_min, data_range_max, fit_min, fit_max, has_fit_step, fit_step,
                              all_file_data, all_file_arguments, all_fit_data, all_fit_arguments))
         {
-          MPI_Abort(MPI_COMM_WORLD, 1);
+          MPI::COMM_WORLD.Abort(1);
         }
         std::vector< std::vector< double > > global_fit_data;
         if(!combine_data(all_fit_data, global_fit_data))
         {
-          MPI_Abort(MPI_COMM_WORLD, 1);
+          MPI::COMM_WORLD.Abort(1);
         }
 
         // read chisqr_extra_term
@@ -310,7 +307,7 @@ int main(int argc, char *argv[])
         {
           if(!get_chi_sqr_extra_term(chisqr_extra_term_function, chisqr_extra_term_constant_names, chisqr_extra_term_constant_values, chisqr_extra_term_num_diff_step, mixed_second_derivatives_specified, mixed_second_derivatives, root))
           {
-            MPI_Abort(MPI_COMM_WORLD, 1);
+            MPI::COMM_WORLD.Abort(1);
           }
 
           if( _in("{", chisqr_extra_term_function) || _in("&", chisqr_extra_term_function) || _in("&", chisqr_extra_term_function) || _in("!", chisqr_extra_term_function) || _in("}", chisqr_extra_term_function)
@@ -322,7 +319,7 @@ int main(int argc, char *argv[])
             {
               std::cerr << "Error: forbidden character in chi^2 extra term function " << std::endl << std::endl;
             }
-            MPI_Abort(MPI_COMM_WORLD, 1);
+            MPI::COMM_WORLD.Abort(1);
           }
 
           for(int p=0; p<c_model->get_n_parameters(); ++p)
@@ -333,7 +330,7 @@ int main(int argc, char *argv[])
               {
                 std::cerr << "Error: constant name \"" << c_model->get_parameter_name(p) << "\" in chi^2 extra term function is equal to a fit parameter name " << std::endl << std::endl;
               }
-              MPI_Abort(MPI_COMM_WORLD, 1);
+              MPI::COMM_WORLD.Abort(1);
             }
           }
 
@@ -345,7 +342,7 @@ int main(int argc, char *argv[])
               {
                 std::cerr << "Error: constant name \"" << c_model->get_constant_name(c) << "\" in chi^2 extra term function is equal to a fit constant name " << std::endl << std::endl;
               }
-              MPI_Abort(MPI_COMM_WORLD, 1);
+              MPI::COMM_WORLD.Abort(1);
             }
           }
 
@@ -368,7 +365,7 @@ int main(int argc, char *argv[])
               {
                 std::cerr << "Error: forbidden character or substring in constant \"" << constant_name << "\" within chi^2 extra term " << std::endl << std::endl;
               }
-              MPI_Abort(MPI_COMM_WORLD, 1);
+              MPI::COMM_WORLD.Abort(1);
             }
           }
           if(proc==0)
@@ -403,7 +400,7 @@ int main(int argc, char *argv[])
           {
             std::cerr << "Error while evaluating chi^2 extra term function " << std::endl << std::endl;
           }
-          MPI_Abort(MPI_COMM_WORLD, 1);
+          MPI::COMM_WORLD.Abort(1);
         }
         if(mixed_second_derivatives_specified)
         {
@@ -459,7 +456,7 @@ int main(int argc, char *argv[])
               {
                 std::cerr << "Error: could not open bootstrap ensemble file " << bse_file << std::endl << std::endl;
               }
-              MPI_Abort(MPI_COMM_WORLD, 1);
+              MPI::COMM_WORLD.Abort(1);
             }
             bse >> bootstrap_samples;
             bse.close();
@@ -476,7 +473,7 @@ int main(int argc, char *argv[])
               {
                 std::cerr << "Error: bootstrap range incorrect"  << std::endl << std::endl;
               }
-              MPI_Abort(MPI_COMM_WORLD, 1);
+              MPI::COMM_WORLD.Abort(1);
             }
             boot_min=bootstrap_range_min-1;
             boot_max=bootstrap_range_max-1;
@@ -488,7 +485,7 @@ int main(int argc, char *argv[])
             {
               std::cerr << "Error: number of bootstrap samples not integer multiple of number of processes "  << std::endl << std::endl;
             }
-            MPI_Abort(MPI_COMM_WORLD, 1);
+            MPI::COMM_WORLD.Abort(1);
           }
           
           bool has_any_range_bootstrap_file=false;
@@ -535,21 +532,21 @@ int main(int argc, char *argv[])
               if(!bse)
               {
                 std::cerr << "Error: could not open bootstrap ensemble file " << bse_file << std::endl << std::endl;
-                MPI_Abort(MPI_COMM_WORLD, 1);
+                MPI::COMM_WORLD.Abort(1);
               }
               int bse_bootstrap_samples=0;
               bse >> bse_bootstrap_samples;
               if(bse_bootstrap_samples!=bootstrap_samples)
               {
                 std::cerr << "Error: bootstrap ensemble file has wrong number of samples" << std::endl << std::endl;
-                MPI_Abort(MPI_COMM_WORLD, 1);
+                MPI::COMM_WORLD.Abort(1);
               }
               int bse_n_data_sets=0;
               bse >> bse_n_data_sets;
               if(bse_n_data_sets!=global_fit_data.size())
               {
                 std::cerr << "Error: bootstrap ensemble file has wrong number of data sets" << std::endl << std::endl;
-                MPI_Abort(MPI_COMM_WORLD, 1);
+                MPI::COMM_WORLD.Abort(1);
               }
               int buf;
               for(int boot=0; boot<bootstrap_samples; ++boot)
@@ -563,7 +560,7 @@ int main(int argc, char *argv[])
               bse.close();
             }
 
-            MPI_Bcast(bse_config, bootstrap_samples*global_fit_data.size(), MPI_INT, 0, MPI_COMM_WORLD);
+            MPI::COMM_WORLD.Bcast(bse_config, bootstrap_samples*global_fit_data.size(), MPI::INT, 0);
           }
 
 
@@ -572,14 +569,14 @@ int main(int argc, char *argv[])
 
             if(!bootstrap(proc, _fitter, bayesian, _gaussian_prior, global_fit_data, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, random_priors, bootstrap_samples, use_bse_file, bse_config, mpi_boot_min, mpi_boot_max, bootstrap_results, all_steps_needed, all_chisqr))
             {
-              MPI_Abort(MPI_COMM_WORLD, 1);
+              MPI::COMM_WORLD.Abort(1);
             }
           }
           else
           {
             if(!bootstrap_with_range_change(proc, c_model, models, constant_values, constant_names, bin_size, restrict_data_range, data_range_min, data_range_max, fit_min, fit_max, has_fit_step, fit_step, has_range_bootstrap_file, range_bootstrap_file, all_file_data, all_file_arguments, _fitter, num_diff, second_deriv_covariance, second_deriv_minimization, num_diff_step, start_lambda, lambda_factor, chi_sqr_tolerance, chi_sqr_tolerance_dof, inv_method, svd_fixed_cut, svd_ratio_cut, svd_absolute_cut, off_diagonal_rescale_factor, cn, bayesian, _gaussian_prior, _chisqr_extra_term, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, random_priors, bootstrap_samples, use_bse_file, bse_config, mpi_boot_min, mpi_boot_max, bootstrap_results, all_steps_needed, all_chisqr))
             {
-              MPI_Abort(MPI_COMM_WORLD, 1);
+              MPI::COMM_WORLD.Abort(1);
             }
           }
 
@@ -596,11 +593,7 @@ int main(int argc, char *argv[])
             }
           }
           double* complete_bootstrap_results = new double[n_procs*samples_per_proc*parameter_names.size()];
-          
-          MPI_Gather(partial_bootstrap_results, samples_per_proc*parameter_names.size(), MPI_DOUBLE,
-              complete_bootstrap_results, samples_per_proc*parameter_names.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
-          
-          
+          MPI::COMM_WORLD.Gather(partial_bootstrap_results, samples_per_proc*parameter_names.size(), MPI::DOUBLE, complete_bootstrap_results, samples_per_proc*parameter_names.size(), MPI::DOUBLE, 0);
           for(int process=0; process<n_procs; ++process)
           {
             for(int boot=0; boot<samples_per_proc; ++boot)
@@ -618,7 +611,7 @@ int main(int argc, char *argv[])
             partial_all_chisqr[boot-mpi_boot_min]=all_chisqr[boot];
           }
           double* complete_all_chisqr = new double[n_procs*samples_per_proc];
-          MPI_Gather(partial_all_chisqr, samples_per_proc, MPI_DOUBLE, complete_all_chisqr, samples_per_proc, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+          MPI::COMM_WORLD.Gather(partial_all_chisqr, samples_per_proc, MPI::DOUBLE, complete_all_chisqr, samples_per_proc, MPI::DOUBLE, 0);
 
           int* partial_all_steps_needed = new int[samples_per_proc];
           for(int boot=mpi_boot_min; boot<=mpi_boot_max; ++boot)
@@ -626,7 +619,7 @@ int main(int argc, char *argv[])
             partial_all_steps_needed[boot-mpi_boot_min]=all_steps_needed[boot];
           }
           int* complete_all_steps_needed = new int[n_procs*samples_per_proc];
-          MPI_Gather(partial_all_steps_needed, samples_per_proc, MPI_INT, complete_all_steps_needed, samples_per_proc, MPI_INT, 0, MPI_COMM_WORLD);
+          MPI::COMM_WORLD.Gather(partial_all_steps_needed, samples_per_proc, MPI::INT, complete_all_steps_needed, samples_per_proc, MPI::INT, 0);
 
           if(proc == 0)
           {
@@ -703,7 +696,7 @@ int main(int argc, char *argv[])
               if(!(*output))
               {
                 std::cerr << "Cannot write file "  << filename << std::endl << std::endl;
-                MPI_Abort(MPI_COMM_WORLD, 1);
+                MPI::COMM_WORLD.Abort(1);
               }
               output -> precision(15);
               all_output[p]=output;
@@ -748,7 +741,7 @@ int main(int argc, char *argv[])
             {
               std::cerr << "Error: number of multifit samples not integer multiple of number of processes "  << std::endl << std::endl;
             }
-            MPI_Abort(MPI_COMM_WORLD, 1);
+            MPI::COMM_WORLD.Abort(1);
           }
           
 
@@ -771,7 +764,7 @@ int main(int argc, char *argv[])
 
           if(!multifit(_fitter, bayesian, _gaussian_prior, global_fit_data, parameter_names, start_values, priors, sigmas, n_parameters_dof, max_iterations, random_priors, mpi_multifit_min, mpi_multifit_max, multifit_results, all_steps_needed, all_chisqr))
           {
-            MPI_Abort(MPI_COMM_WORLD, 1);
+            MPI::COMM_WORLD.Abort(1);
           }
 
           // gather results
@@ -785,11 +778,7 @@ int main(int argc, char *argv[])
             }
           }
           double* complete_multifit_results = new double[n_procs*samples_per_proc*parameter_names.size()];
-         
-          MPI_Gather(partial_multifit_results, samples_per_proc*parameter_names.size(), MPI_DOUBLE,
-               complete_multifit_results, samples_per_proc*parameter_names.size(), MPI_DOUBLE, 0, MPI_COMM_WORLD);
-           
-          
+          MPI::COMM_WORLD.Gather(partial_multifit_results, samples_per_proc*parameter_names.size(), MPI::DOUBLE, complete_multifit_results, samples_per_proc*parameter_names.size(), MPI::DOUBLE, 0);
           for(int process=0; process<n_procs; ++process)
           {
             for(int n=0; n<samples_per_proc; ++n)
@@ -807,7 +796,7 @@ int main(int argc, char *argv[])
             partial_all_chisqr[n-mpi_multifit_min]=all_chisqr[n];
           }
           double* complete_all_chisqr = new double[n_procs*samples_per_proc];
-          MPI_Gather(partial_all_chisqr, samples_per_proc, MPI_DOUBLE, complete_all_chisqr, samples_per_proc, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+          MPI::COMM_WORLD.Gather(partial_all_chisqr, samples_per_proc, MPI::DOUBLE, complete_all_chisqr, samples_per_proc, MPI::DOUBLE, 0);
 
           int* partial_all_steps_needed = new int[samples_per_proc];
           for(int n=mpi_multifit_min; n<=mpi_multifit_max; ++n)
@@ -815,7 +804,7 @@ int main(int argc, char *argv[])
             partial_all_steps_needed[n-mpi_multifit_min]=all_steps_needed[n];
           }
           int* complete_all_steps_needed = new int[n_procs*samples_per_proc];
-          MPI_Gather(partial_all_steps_needed, samples_per_proc, MPI_INT, complete_all_steps_needed, samples_per_proc, MPI_INT, 0, MPI_COMM_WORLD);
+          MPI::COMM_WORLD.Gather(partial_all_steps_needed, samples_per_proc, MPI::INT, complete_all_steps_needed, samples_per_proc, MPI::INT, 0);
 
           if(proc == 0)
           {
@@ -892,7 +881,7 @@ int main(int argc, char *argv[])
               if(!(*output))
               {
                 std::cerr << "Cannot write file "  << filename << std::endl << std::endl;
-                MPI_Abort(MPI_COMM_WORLD, 1);
+                MPI::COMM_WORLD.Abort(1);
               }
               output -> precision(15);
               all_output[p]=output;
@@ -934,9 +923,9 @@ int main(int argc, char *argv[])
     {
       std::cout << "XML exception caught while reading " << inputfile << " : " << ex.what() << std::endl << std::endl;
     }
-    MPI_Abort(MPI_COMM_WORLD, 1);
+    MPI::COMM_WORLD.Abort(1);
   }
   #endif //LIBXMLCPP_EXCEPTIONS_ENABLED
 
-  MPI_Finalize();
+  MPI::Finalize();
 }
