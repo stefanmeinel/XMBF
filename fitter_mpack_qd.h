@@ -149,9 +149,9 @@ class fitter
 
     vector< string > parameter_names;
 
-    gsl_matrix* corr;
+    gsl_matrix* datacov;
 
-    qd_real* inv_corr;
+    qd_real* inv_datacov;
 
     gsl_matrix* result_cov;
 

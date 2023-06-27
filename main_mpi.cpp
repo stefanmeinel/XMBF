@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 
   if(proc==0)
   {
-    std::cout << std::endl << "This is XMBF_mpi version 2.57" << std::endl << std::endl;
+    std::cout << std::endl << "This is XMBF_mpi version 2.58" << std::endl << std::endl;
     std::cout << std::endl << "Number of processes = " << n_procs << std::endl << std::endl;
     std::cout << "Input file: "  << inputfile  << std::endl << std::endl;
   }

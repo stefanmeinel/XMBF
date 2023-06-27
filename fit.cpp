@@ -22,12 +22,12 @@ bool fit(fitter* _fitter,
   {
     if( (dof-cut) > global_fit_data.size() )
     {
-      std::cerr << " Error: not enough data sets (after binning) to obtain (pseudo-)inverse of data correlation matrix. Reduce bin size or increase SVD cut" << std::endl << std::endl;
+      std::cerr << " Error: not enough data sets (after binning) to obtain (pseudo-)inverse of data covariance matrix. Reduce bin size or increase SVD cut" << std::endl << std::endl;
       return false;
     }
   }
   std::cout << "Number of data sets (after binning) is " << global_fit_data.size() << std::endl;
-  std::cout << "Kept " << dof-cut << " out of " << dof << " eigenvalues for data correlation matrix." << std::endl << std::endl;
+  std::cout << "Kept " << dof-cut << " out of " << dof << " eigenvalues for data covariance matrix." << std::endl << std::endl;
   if(bayesian)
   {
     _gaussian_prior->set_enabled(true);

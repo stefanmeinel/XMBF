@@ -52,7 +52,7 @@ void print_usage()
 
 int main(int argc, char *argv[])
 {
-  std::cout << std::endl << "This is XMBF_mpack_qd version 2.57" << std::endl << std::endl;
+  std::cout << std::endl << "This is XMBF_mpack_qd version 2.58" << std::endl << std::endl;
   if(argc<2)
   {
     print_usage();

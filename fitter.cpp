@@ -29,8 +29,8 @@ fitter::fitter(abstract_global_model* fit_model,
   start_vals.resize(n_parameters, 0.0);
   parameter_names.resize(n_parameters);
 
-  corr=NULL;
-  inv_corr=NULL;
+  datacov=NULL;
+  inv_datacov=NULL;
 
   model->set_parameters(start_vals);
 
@@ -55,13 +55,13 @@ fitter::fitter(abstract_global_model* fit_model,
 
 fitter::~fitter()
 {
-  if(corr!=NULL)
+  if(datacov!=NULL)
   {
-    gsl_matrix_free(corr);
+    gsl_matrix_free(datacov);
   }
-  if(inv_corr!=NULL)
+  if(inv_datacov!=NULL)
   {
-    gsl_matrix_free(inv_corr);
+    gsl_matrix_free(inv_datacov);
   }
   gsl_matrix_free(result_cov);
 }
@@ -110,7 +110,7 @@ void fitter::set_data(const vector< vector< double > >& data)
     average[m]/=n_data_sets;
   }
 
-// calculate data correlation matrix corr
+// calculate data covariance matrix datacov
 
   double normalization=1.0;
   if(cn==standard_normalization)
@@ -126,11 +126,11 @@ void fitter::set_data(const vector< vector< double > >& data)
     normalization=double(n_data_sets)/double(n_data_sets-1);
   }
 
-  if(corr!=NULL)
+  if(datacov!=NULL)
   {
-    gsl_matrix_free(corr);
+    gsl_matrix_free(datacov);
   }
-  corr=gsl_matrix_alloc(n_fit_points, n_fit_points);
+  datacov=gsl_matrix_alloc(n_fit_points, n_fit_points);
   if(inv_method==diagonal)
   {
     // initialize to zero
@@ -138,17 +138,17 @@ void fitter::set_data(const vector< vector< double > >& data)
     {
       for(int m2=0; m2<n_fit_points; ++m2)
       {
-        gsl_matrix_set(corr, m1, m2, 0.0);
+        gsl_matrix_set(datacov, m1, m2, 0.0);
       }
     }
     for(int m=0; m<n_fit_points; ++m)
     {
-      double corr_temp=0.0;
+      double datacov_temp=0.0;
       for(int n=0; n<n_data_sets; ++n)
       {
-        corr_temp+=(data[n][m]-average[m])*(data[n][m]-average[m]);
+        datacov_temp+=(data[n][m]-average[m])*(data[n][m]-average[m]);
       }
-      gsl_matrix_set(corr, m, m, corr_temp/normalization);
+      gsl_matrix_set(datacov, m, m, datacov_temp/normalization);
     }
   }
   else
@@ -157,28 +157,28 @@ void fitter::set_data(const vector< vector< double > >& data)
     {
       for(int m2=0; m2<=m1; ++m2)
       {
-        double corr_temp=0.0;
+        double datacov_temp=0.0;
         if( model->model_group(m1) == model->model_group(m2) )
         {
           for(int n=0; n<n_data_sets; ++n)
           {
-            corr_temp+=(data[n][m1]-average[m1])*(data[n][m2]-average[m2]);
+            datacov_temp+=(data[n][m1]-average[m1])*(data[n][m2]-average[m2]);
           }
         }
         if( inv_method==off_diagonal_rescale )
         {
           if( m1==m2 )
           {
-            gsl_matrix_set(corr, m1, m2, corr_temp/normalization);
+            gsl_matrix_set(datacov, m1, m2, datacov_temp/normalization);
           }
           else
           {
-            gsl_matrix_set(corr, m1, m2, off_diagonal_rescale_factor*corr_temp/normalization);
+            gsl_matrix_set(datacov, m1, m2, off_diagonal_rescale_factor*datacov_temp/normalization);
           }
         }
         else
         {
-          gsl_matrix_set(corr, m1, m2, corr_temp/normalization);
+          gsl_matrix_set(datacov, m1, m2, datacov_temp/normalization);
         }
       }
     }
@@ -187,21 +187,21 @@ void fitter::set_data(const vector< vector< double > >& data)
     {
       for(int m2=m1+1; m2<n_fit_points; ++m2)
       {
-        gsl_matrix_set(corr, m1, m2, gsl_matrix_get(corr, m2, m1)) ;
+        gsl_matrix_set(datacov, m1, m2, gsl_matrix_get(datacov, m2, m1)) ;
       }
     }
   }
 
-// calculate inverse correlation matrix inv_corr;
+// calculate inverse covariance matrix inv_datacov;
 
   cut=0;
   int zero_values=0;
 
-  if(inv_corr!=NULL)
+  if(inv_datacov!=NULL)
   {
-    gsl_matrix_free(inv_corr);
+    gsl_matrix_free(inv_datacov);
   }
-  inv_corr=gsl_matrix_alloc(n_fit_points, n_fit_points);
+  inv_datacov=gsl_matrix_alloc(n_fit_points, n_fit_points);
 
   if(inv_method==diagonal)
   {
@@ -209,19 +209,19 @@ void fitter::set_data(const vector< vector< double > >& data)
     {
       for(int m2=0; m2<n_fit_points; ++m2)
       {
-        gsl_matrix_set(inv_corr, m1, m2, 0.0) ;
+        gsl_matrix_set(inv_datacov, m1, m2, 0.0) ;
       }
     }
 
     for(int m=0; m<n_fit_points; ++m)
     {
-      double d=gsl_matrix_get(corr, m, m);
+      double d=gsl_matrix_get(datacov, m, m);
       if(d==0)
       {
-        cerr << "Error: zero diagonal element in data correlation matrix." << endl;
+        cerr << "Error: zero diagonal element in data covariance matrix." << endl;
         return;
       }
-      gsl_matrix_set(inv_corr, m, m, 1.0/d);
+      gsl_matrix_set(inv_datacov, m, m, 1.0/d);
     }
 
     return;
@@ -233,23 +233,23 @@ void fitter::set_data(const vector< vector< double > >& data)
     if(n_data_sets<n_fit_points)
     {
       singular=true;
-      cout << "Warning: data correlation matrix is singular. Reverting to SVD decomposition." << endl;
+      cout << "Warning: data covariance matrix is singular. Reverting to SVD decomposition." << endl;
     }
     else
     {
       gsl_matrix* work_m=gsl_matrix_alloc(n_fit_points, n_fit_points);
-      gsl_matrix_memcpy(work_m, corr);
+      gsl_matrix_memcpy(work_m, datacov);
       gsl_permutation* perm=gsl_permutation_alloc(n_fit_points);
       int signum;
       if(gsl_linalg_LU_decomp(work_m, perm, &signum)!=GSL_SUCCESS)
       {
         singular=true;
-        cout << "Warning: gsl_linalg_LU_decomp of data correlation matrix failed. Reverting to SVD decomposition." << endl;
+        cout << "Warning: gsl_linalg_LU_decomp of data covariance matrix failed. Reverting to SVD decomposition." << endl;
       }
-      else if(gsl_linalg_LU_invert(work_m, perm, inv_corr)!=GSL_SUCCESS)
+      else if(gsl_linalg_LU_invert(work_m, perm, inv_datacov)!=GSL_SUCCESS)
       {
         singular=true;
-        cout << "Warning: gsl_linalg_LU_invert of data correlation matrix failed. Reverting to SVD decomposition." << endl;
+        cout << "Warning: gsl_linalg_LU_invert of data covariance matrix failed. Reverting to SVD decomposition." << endl;
       }
       gsl_permutation_free(perm);
       gsl_matrix_free(work_m);
@@ -258,7 +258,7 @@ void fitter::set_data(const vector< vector< double > >& data)
   if( ((inv_method!=LU_inversion) && (inv_method!=off_diagonal_rescale)) || singular)
   {
     gsl_matrix* work_m=gsl_matrix_alloc(n_fit_points, n_fit_points);
-    gsl_matrix_memcpy(work_m, corr);
+    gsl_matrix_memcpy(work_m, datacov);
 
     gsl_matrix* V=gsl_matrix_alloc(n_fit_points, n_fit_points);
     gsl_vector* S=gsl_vector_alloc(n_fit_points);
@@ -266,7 +266,7 @@ void fitter::set_data(const vector< vector< double > >& data)
 
     if(gsl_linalg_SV_decomp(work_m, V, S, work_v)!=GSL_SUCCESS)
     {
-      cerr << "Warning: gsl_linalg_SV_decomp of data correlation matrix failed" << endl;
+      cerr << "Warning: gsl_linalg_SV_decomp of data covariance matrix failed" << endl;
     }
 
     // now work_m contains the matrix U
@@ -299,25 +299,25 @@ void fitter::set_data(const vector< vector< double > >& data)
       }
     }
 
-    double inv_corr_temp;
+    double inv_datacov_temp;
     for(int i=0; i<n_fit_points; ++i)
     {
       for(int j=0; j<=i; ++j)
       {
-        inv_corr_temp=0.0;
+        inv_datacov_temp=0.0;
         zero_values=0.0;
         for(int k=0; k<n_fit_points-cut; ++k)
         {
           if(gsl_vector_get(S, k)>0)
           {
-            inv_corr_temp+=gsl_matrix_get(V, i, k)*(1.0/gsl_vector_get(S, k))*gsl_matrix_get(work_m, j, k);
+            inv_datacov_temp+=gsl_matrix_get(V, i, k)*(1.0/gsl_vector_get(S, k))*gsl_matrix_get(work_m, j, k);
           }
           else
           {
             ++zero_values;
           }
         }
-        gsl_matrix_set(inv_corr, i, j, inv_corr_temp);
+        gsl_matrix_set(inv_datacov, i, j, inv_datacov_temp);
       }
     }
 
@@ -325,7 +325,7 @@ void fitter::set_data(const vector< vector< double > >& data)
     {
       for(int m2=m1+1; m2<n_fit_points; ++m2)
       {
-        gsl_matrix_set(inv_corr, m1, m2, gsl_matrix_get(inv_corr, m2, m1)) ;
+        gsl_matrix_set(inv_datacov, m1, m2, gsl_matrix_get(inv_datacov, m2, m1)) ;
       }
     }
 
@@ -342,7 +342,7 @@ void fitter::set_data(const vector< vector< double > >& data)
 
 double fitter::get_data_covariance(int m1, int m2)
 {
-  return gsl_matrix_get(corr, m1, m2);
+  return gsl_matrix_get(datacov, m1, m2);
 }
 
 
@@ -465,7 +465,7 @@ double fitter::chi_sqr(const vector< double >& params)
       temp_chi_sqr2=0.0;
       for(int m2=0; m2<m1; ++m2)
       {
-        temp_chi_sqr2+= gsl_matrix_get(inv_corr, m1, m2)*temp_vec[m2];
+        temp_chi_sqr2+= gsl_matrix_get(inv_datacov, m1, m2)*temp_vec[m2];
       }
       temp_chi_sqr+=temp_chi_sqr2*temp_vec[m1];
     }
@@ -474,7 +474,7 @@ double fitter::chi_sqr(const vector< double >& params)
 
   for(int m1=0; m1<n_fit_points; ++m1)
   {
-    temp_chi_sqr+= gsl_matrix_get(inv_corr, m1, m1)
+    temp_chi_sqr+= gsl_matrix_get(inv_datacov, m1, m1)
                   *temp_vec[m1]*temp_vec[m1];
   }
 
@@ -541,7 +541,7 @@ void fitter::beta(const vector< double >& params, gsl_vector* result)
         temp_beta2=0.0;
         for(int m2=0; m2<n_fit_points; ++m2)
         {
-          temp_beta2+= gsl_matrix_get(inv_corr, m1, m2)*temp_vec_1[m2];
+          temp_beta2+= gsl_matrix_get(inv_datacov, m1, m2)*temp_vec_1[m2];
         }
         temp_beta+=temp_beta2*temp_vec_2[m1];
       }
@@ -550,7 +550,7 @@ void fitter::beta(const vector< double >& params, gsl_vector* result)
     {
       for(int m=0; m<n_fit_points; ++m)
       {
-        temp_beta += gsl_matrix_get(inv_corr, m, m)*temp_vec_1[m]*temp_vec_2[m];
+        temp_beta += gsl_matrix_get(inv_datacov, m, m)*temp_vec_1[m]*temp_vec_2[m];
       }
     }
 
@@ -602,13 +602,13 @@ void fitter::alpha(const vector< double >& params, double lambda, bool secondder
     }
   }
 
-  // store inv_corr in built-in array for better performance
-  double* inv_corr_vector=new double[n_fit_points*n_fit_points];
+  // store inv_datacov in built-in array for better performance
+  double* inv_datacov_vector=new double[n_fit_points*n_fit_points];
   for(int m1=0; m1<n_fit_points; ++m1)
   {
     for(int m2=0; m2<n_fit_points; ++m2)
     {
-      inv_corr_vector[m1*n_fit_points+m2]=gsl_matrix_get(inv_corr, m1, m2);
+      inv_datacov_vector[m1*n_fit_points+m2]=gsl_matrix_get(inv_datacov, m1, m2);
     }
   }
 
@@ -631,7 +631,7 @@ void fitter::alpha(const vector< double >& params, double lambda, bool secondder
           alpha_temp2=0.0;
           for(int m2=0; m2<n_fit_points; ++m2)
           {
-            alpha_temp2+= inv_corr_vector[index3+m2]*all_derivatives[index2+m2];
+            alpha_temp2+= inv_datacov_vector[index3+m2]*all_derivatives[index2+m2];
           }
           alpha_temp+=alpha_temp2*all_derivatives[index1+m1];
         }
@@ -640,7 +640,7 @@ void fitter::alpha(const vector< double >& params, double lambda, bool secondder
       {
         for(int m=0; m<n_fit_points; ++m)
         {
-          alpha_temp+= inv_corr_vector[m*n_fit_points+m]*all_derivatives[index2+m]*all_derivatives[index1+m];
+          alpha_temp+= inv_datacov_vector[m*n_fit_points+m]*all_derivatives[index2+m]*all_derivatives[index1+m];
         }
       }
       alpha_temp+=prior->alpha(p1, p2);
@@ -765,7 +765,7 @@ void fitter::alpha(const vector< double >& params, double lambda, bool secondder
             alpha_temp2=0.0;
             for(int m2=0; m2<n_fit_points; ++m2)
             {
-              alpha_temp2+=inv_corr_vector[index3+m2]*temp_vec_1[m2];
+              alpha_temp2+=inv_datacov_vector[index3+m2]*temp_vec_1[m2];
             }
             alpha_temp-=alpha_temp2*all_second_derivatives[m1];   // minus sign
           }
@@ -775,7 +775,7 @@ void fitter::alpha(const vector< double >& params, double lambda, bool secondder
         {
           for(int m=0; m<n_fit_points; ++m)
           {
-            alpha_temp-=inv_corr_vector[m*n_fit_points+m]*temp_vec_1[m]*all_second_derivatives[m];   // minus sign
+            alpha_temp-=inv_datacov_vector[m*n_fit_points+m]*temp_vec_1[m]*all_second_derivatives[m];   // minus sign
           }
           gsl_matrix_set(result, p1, p2, alpha_temp);
         }
@@ -787,7 +787,7 @@ void fitter::alpha(const vector< double >& params, double lambda, bool secondder
     delete[] temp_vec_1;
   }
 
-  delete[] inv_corr_vector;
+  delete[] inv_datacov_vector;
 
   // insert upper off-diagonal entries
   for(int p1=0; p1<n_parameters; ++p1)
